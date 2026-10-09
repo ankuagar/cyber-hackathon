@@ -67,6 +67,16 @@ python sentinel/log_analyzer.py path/to/events.log
 
 ## Live API
 
-Stage **07 Live API** checks a URI you already published. AkashML calls a hosted model; it does not deploy your image. To publish a container, deploy `deploy/web.sdl.yml` with the akt CLI or the Console API, copy the service URI, and paste it into that stage.
+Stage **07 Live API** checks a URI you already published. AkashML calls a hosted model; it does not deploy your image.
+
+`apps/lane-demo` is a small status page with the issues that check looks for: no browser protections, a wildcard CORS header, a software name in the response, and `/.env`, `/debug`, and `/server-status` answering in plain text. The `.env` values are placeholders.
+
+```bash
+docker build --platform linux/amd64 -t lane-demo:0.1.0 apps/lane-demo
+docker tag lane-demo:0.1.0 ankura/lane-demo:0.1.0
+docker push ankura/lane-demo:0.1.0
+```
+
+Deploy `deploy/lane-demo.sdl.yml` with the akt CLI or the Console API, and paste the service URI into stage 07. `deploy/web.sdl.yml` is the plain nginx image, for the same check with fewer findings.
 
 The check reads the home page and `/.env`, `/debug`, and `/server-status`. It reports missing browser protections, a wildcard CORS header, HTTP instead of HTTPS, and a path that returns configuration-shaped text. It does not send attack payloads, and it does not print secret values.

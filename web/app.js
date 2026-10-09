@@ -477,7 +477,7 @@ function liveView() {
   return `
     <p class="kicker">07 · Live API</p>
     <h1>Check the URI from your deploy.</h1>
-    <p class="lede">AkashML calls a hosted model. Publishing a container is an Akash deploy. Put the image in <code>deploy/web.sdl.yml</code>, deploy it, then paste the URI here. This reads the response and a few well-known paths. It does not send attack payloads, and it does not print secret values.</p>
+    <p class="lede">AkashML calls a hosted model. Publishing a container is an Akash deploy. <code>apps/lane-demo</code> is a status page with known issues, and <code>deploy/lane-demo.sdl.yml</code> is its deploy file. <code>deploy/web.sdl.yml</code> is plain nginx. Paste the service URI here. This reads the response and a few well-known paths. It does not send attack payloads, and it does not print secret values.</p>
     <form class="live-form" id="live-form">
       <label for="live-url">Deployment URI</label>
       <input id="live-url" name="url" type="url" placeholder="https://example.ingress.akash.pub" value="${esc(liveUrl)}" required />
