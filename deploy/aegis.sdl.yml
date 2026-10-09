@@ -1,0 +1,33 @@
+version: "2.0"
+
+services:
+  aegis:
+    image: ankura/aegis:0.1.1
+    expose:
+      - port: 8787
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    aegis:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          size: 2Gi
+  placement:
+    dcloud:
+      pricing:
+        aegis:
+          denom: uact
+          amount: 2000
+
+deployment:
+  aegis:
+    dcloud:
+      profile: aegis
+      count: 1

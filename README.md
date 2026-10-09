@@ -82,3 +82,15 @@ docker push ankura/lane-demo:0.1.0
 Deploy `deploy/lane-demo.sdl.yml` with the akt CLI or the Console API, and paste the service URI into stage 07. `deploy/web.sdl.yml` is the plain nginx image, for the same check with fewer findings.
 
 The check reads the home page and `/.env`, `/debug`, and `/server-status`. It reports missing browser protections, a wildcard CORS header, HTTP instead of HTTPS, and a path that returns configuration-shaped text. It does not send attack payloads, and it does not print secret values.
+
+## Deploy Aegis on Akash
+
+The console image listens on `0.0.0.0:8787`. Akash publishes that as port 80. `OPENAI_API_KEY` is not in the image. The Northwind sandbox audit needs a local Docker daemon, so that stage does not run inside this container.
+
+```bash
+docker build --platform linux/amd64 -t aegis:0.1.1 .
+docker tag aegis:0.1.1 ankura/aegis:0.1.1
+docker push ankura/aegis:0.1.1
+```
+
+Deploy `deploy/aegis.sdl.yml` with the akt CLI or the Console API. The image field is `ankura/aegis:0.1.1`. Akash names a variable `AEGIS_PORT` after the service, so the listen port is `AEGIS_LISTEN_PORT`.
