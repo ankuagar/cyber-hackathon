@@ -5,6 +5,7 @@ const STAGES = [
   { id: "defense", index: "04", title: "Continuous defense" },
   { id: "drift", index: "05", title: "Runtime drift" },
   { id: "sentinel", index: "06", title: "Sentinel" },
+  { id: "live", index: "07", title: "Live API" },
 ];
 
 const PILLARS = [
@@ -20,6 +21,8 @@ let stage = "discovery";
 let busy = false;
 let pending = "";
 let fileFilter = null;
+let liveUrl = "";
+let liveReport = null;
 
 const view = document.querySelector("#view");
 const tape = document.querySelector("#tape");
@@ -118,6 +121,11 @@ function render() {
   paintTape();
   if (stage === "sentinel") {
     view.innerHTML = sentinelView();
+    bindActions();
+    return;
+  }
+  if (stage === "live") {
+    view.innerHTML = liveView();
     bindActions();
     return;
   }
@@ -447,6 +455,39 @@ function sentinelView() {
   `;
 }
 
+function liveView() {
+  const findings = liveReport?.findings || [];
+  const cards = findings.map((finding) => `
+    <article class="finding open">
+      <div class="sev ${esc(finding.severity)}">${esc(finding.severity)}</div>
+      <div>
+        <h3>${esc(finding.title)}</h3>
+        <p>${esc(finding.detail)}</p>
+      </div>
+    </article>
+  `).join("");
+  const result = !liveReport
+    ? ""
+    : findings.length
+      ? `<h2 class="section-label">${findings.length} checks failed</h2>${cards}`
+      : `<p class="lede">No checks failed for ${esc(liveReport.url)}. Status ${liveReport.status}.</p>`;
+  const checked = liveReport
+    ? `<p class="meta">Read ${liveReport.checked.map(esc).join(" · ")}</p>`
+    : "";
+  return `
+    <p class="kicker">07 · Live API</p>
+    <h1>Check the URI from your deploy.</h1>
+    <p class="lede">AkashML calls a hosted model. Publishing a container is an Akash deploy. Put the image in <code>deploy/web.sdl.yml</code>, deploy it, then paste the URI here. This reads the response and a few well-known paths. It does not send attack payloads, and it does not print secret values.</p>
+    <form class="live-form" id="live-form">
+      <label for="live-url">Deployment URI</label>
+      <input id="live-url" name="url" type="url" placeholder="https://example.ingress.akash.pub" value="${esc(liveUrl)}" required />
+      <button class="primary" type="submit" ${busy ? "disabled" : ""}>${pending === "/api/live" ? "Checking…" : "Check deployment"}</button>
+    </form>
+    ${result}
+    ${checked}
+  `;
+}
+
 function sandboxSentence(sandbox) {
   const ports = sandbox.host_ports ? "published host ports" : "published no host ports";
   const privileged = sandbox.privileged ? "granted privileged mode" : "did not grant privileged mode";
@@ -595,6 +636,14 @@ function bindActions() {
   for (const button of view.querySelectorAll("[data-copy]")) {
     button.addEventListener("click", () => copyCommand(button));
   }
+  const liveForm = document.querySelector("#live-form");
+  if (liveForm) {
+    liveForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = liveForm.querySelector("input");
+      checkLive(input.value);
+    });
+  }
   const tabs = [...view.querySelectorAll("[data-file]")];
   tabs.forEach((button, index) => {
     button.addEventListener("click", () => {
@@ -656,6 +705,29 @@ function esc(value) {
     '"': "&quot;",
     "'": "&#39;",
   })[char]);
+}
+
+async function checkLive(url) {
+  if (busy) return;
+  liveUrl = url.trim();
+  busy = true;
+  pending = "/api/live";
+  clearError();
+  render();
+  try {
+    liveReport = await api("/api/live", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: liveUrl }),
+    });
+  } catch (err) {
+    liveReport = null;
+    showError(err);
+  } finally {
+    busy = false;
+    pending = "";
+    render();
+  }
 }
 
 async function copyCommand(button) {

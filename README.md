@@ -64,3 +64,9 @@ Turn a log file into one incident report:
 ```bash
 python sentinel/log_analyzer.py path/to/events.log
 ```
+
+## Live API
+
+Stage **07 Live API** checks a URI you already published. AkashML calls a hosted model; it does not deploy your image. To publish a container, deploy `deploy/web.sdl.yml` with the akt CLI or the Console API, copy the service URI, and paste it into that stage.
+
+The check reads the home page and `/.env`, `/debug`, and `/server-status`. It reports missing browser protections, a wildcard CORS header, HTTP instead of HTTPS, and a path that returns configuration-shaped text. It does not send attack payloads, and it does not print secret values.

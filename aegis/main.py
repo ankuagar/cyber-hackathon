@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from aegis import engine as engine_mod
 from aegis.engine import EngineError
+from aegis.live import LiveScanError, scan_url
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
@@ -17,6 +18,10 @@ app = FastAPI(title="Aegis")
 
 class TargetRequest(BaseModel):
     id: str
+
+
+class LiveRequest(BaseModel):
+    url: str
 
 
 def _run(method: str):
@@ -59,6 +64,14 @@ def audit():
 @app.post("/api/reset")
 def reset():
     return _run("reset")
+
+
+@app.post("/api/live")
+def live(body: LiveRequest):
+    try:
+        return scan_url(body.url)
+    except LiveScanError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.post("/api/target")

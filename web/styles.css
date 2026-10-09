@@ -215,6 +215,34 @@ button:disabled { cursor: progress; opacity: 0.55; }
   color: var(--text);
 }
 .command .ghost { flex: none; padding: 8px 12px; }
+.live-form {
+  display: grid;
+  gap: 8px;
+  max-width: 68ch;
+  margin: 8px 0 18px;
+}
+.live-form label {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.live-form input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #0c100d;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: 14px "IBM Plex Mono", ui-monospace, monospace;
+}
+.live-form input:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.live-form .primary { justify-self: start; }
+.lede code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+}
 .demo-switch { display: flex; gap: 6px; flex: none; }
 .demo-choice {
   background: transparent;
