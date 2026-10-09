@@ -1,6 +1,8 @@
-# Aegis
+# Aegis: Autonomous Defense Loop
 
-A local defense loop for a service you already ship. Point it at a deploy, and it does four things in order:
+Aegis reads a deploy you already ship, joins misconfigurations into attack paths, hardens the files, and rescans the workspace and the published URI to prove the path is closed.
+
+It does that in order:
 
 1. **Threat discovery** — misconfigurations, default credentials, and dependencies missing a published fix.
 2. **Attack intelligence** — those separate signals joined into paths, with the impact stated in plain language.

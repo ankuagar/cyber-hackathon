@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Semgrep · Aegis</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      background: #101410;
+      color: #e8efe9;
+      font: 16px/1.45 Outfit, "Segoe UI", sans-serif;
+    }
+    main { max-width: 880px; margin: 0 auto; padding: 36px 28px 64px; }
+    .kicker { margin: 0; color: #e0b15a; font: 12px/1 ui-monospace, monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+    h1 { margin: 8px 0 6px; font-size: 36px; letter-spacing: -0.03em; }
+    .lede { margin: 0 0 22px; color: #93a199; max-width: 68ch; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 0 0 22px; }
+    .stat { background: #171c18; border: 1px solid #2d3932; border-radius: 14px; padding: 12px 10px; }
+    .stat b { display: block; font-size: 28px; letter-spacing: -0.03em; }
+    .stat span { color: #93a199; font-size: 13px; }
+    .error b { color: #ef6a58; }
+    .warn b { color: #e7a04a; }
+    article { background: #171c18; border: 1px solid #2d3932; border-radius: 14px; padding: 14px 16px; margin: 0 0 10px; }
+    .sev { display: inline-block; font: 11px/1 ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px; padding: 4px 8px; }
+    .ERROR { color: #ef6a58; background: rgba(239,106,88,.12); }
+    .WARNING { color: #e7a04a; background: rgba(231,160,74,.12); }
+    h2 { margin: 8px 0 4px; font-size: 18px; }
+    p { margin: 0; color: #93a199; }
+    code { font: 13px/1.4 ui-monospace, monospace; color: #e8efe9; }
+    .where { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="kicker">Semgrep 1.180.0 · p/default p/python p/javascript p/dockerfile p/secrets</p>
+    <h1>Aegis scan</h1>
+    <p class="lede">Scanned apps, aegis, sentinel, web, fixtures, and deploy. Six findings. Three rules did not run because they need the Semgrep Pro engine.</p>
+    <div class="stats">
+      <div class="stat error"><b>1</b><span>error</span></div>
+      <div class="stat warn"><b>5</b><span>warnings</span></div>
+      <div class="stat"><b>3</b><span>rules skipped</span></div>
+    </div>
+
+    <article>
+      <span class="sev ERROR">error</span>
+      <h2>Last user in the image is root</h2>
+      <p>The Northwind fixture image ends on <code>USER root</code>. If that container is compromised, the process is root.</p>
+      <p class="where"><code>fixtures/northwind/Dockerfile:10</code> · dockerfile.security.last-user-is-root</p>
+    </article>
+    <article>
+      <span class="sev WARNING">warning</span>
+      <h2>Manually built HTML in the console</h2>
+      <p>Semgrep flagged a template in the Sentinel stage where text is placed into HTML. That text is passed through <code>esc()</code> before it is inserted.</p>
+      <p class="where"><code>web/app.js:442</code> · javascript.express.security.injection.raw-html-format</p>
+    </article>
+    <article>
+      <span class="sev WARNING">warning</span>
+      <h2>lane-demo deploy has no no-new-privileges setting</h2>
+      <p>A Compose rule matched the Akash SDL. The file is not a Compose file. Semgrep still reported that the web service does not set <code>no-new-privileges</code>.</p>
+      <p class="where"><code>deploy/lane-demo.sdl.yml:4</code> · yaml.docker-compose.security.no-new-privileges</p>
+    </article>
+    <article>
+      <span class="sev WARNING">warning</span>
+      <h2>lane-demo deploy has a writable container filesystem</h2>
+      <p>The same Compose rule matched the Akash SDL and reported that the web service is not marked read-only.</p>
+      <p class="where"><code>deploy/lane-demo.sdl.yml:4</code> · yaml.docker-compose.security.writable-filesystem-service</p>
+    </article>
+    <article>
+      <span class="sev WARNING">warning</span>
+      <h2>nginx deploy has no no-new-privileges setting</h2>
+      <p>A Compose rule matched <code>deploy/web.sdl.yml</code>, which is Akash SDL for nginx, not Compose.</p>
+      <p class="where"><code>deploy/web.sdl.yml:4</code> · yaml.docker-compose.security.no-new-privileges</p>
+    </article>
+    <article>
+      <span class="sev WARNING">warning</span>
+      <h2>nginx deploy has a writable container filesystem</h2>
+      <p>The same Compose rule reported that the nginx service is not marked read-only.</p>
+      <p class="where"><code>deploy/web.sdl.yml:4</code> · yaml.docker-compose.security.writable-filesystem-service</p>
+    </article>
+  </main>
+</body>
+</html>
