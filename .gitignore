@@ -4,3 +4,5 @@ __pycache__/
 .pytest_cache/
 var/
 .DS_Store
+.env
+*.bak

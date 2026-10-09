@@ -46,3 +46,21 @@ On Harbor Archive the same pass:
 - Moves PyYAML to 5.4 (CVE-2020-14343).
 
 Aegis reads and edits that local workspace. It does not reach out to other hosts.
+
+## Sentinel
+
+`sentinel/` is the guild scanner and log reader, brought over from `cyber-hackathon-guild`. It calls OpenAI, so set `OPENAI_API_KEY` in the environment or a `.env` file first.
+
+Scan one source or config file and print a hardening suggestion:
+
+```bash
+python sentinel/sentinel_scan.py --scan fixtures/northwind/docker-compose.yml
+```
+
+`--apply` writes that suggestion over the file and keeps the original as a `.bak` beside it.
+
+Turn a log file into one incident report:
+
+```bash
+python sentinel/log_analyzer.py path/to/events.log
+```

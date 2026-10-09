@@ -4,6 +4,7 @@ const STAGES = [
   { id: "remediate", index: "03", title: "Autonomous remediation" },
   { id: "defense", index: "04", title: "Continuous defense" },
   { id: "drift", index: "05", title: "Runtime drift" },
+  { id: "sentinel", index: "06", title: "Sentinel" },
 ];
 
 const PILLARS = [
@@ -115,6 +116,11 @@ async function runLoop() {
 function render() {
   paintChrome();
   paintTape();
+  if (stage === "sentinel") {
+    view.innerHTML = sentinelView();
+    bindActions();
+    return;
+  }
   if (!state || state.phase === "ready") {
     view.innerHTML = stage === "drift" ? driftNeedsScan() : readyView();
     bindActions();
@@ -397,6 +403,50 @@ function driftView() {
   `;
 }
 
+function sentinelView() {
+  const steps = [
+    {
+      title: "Set the key",
+      body: "Sentinel calls OpenAI. From the repo, with the virtualenv active, set the key in your shell or in a .env file. The key stays on your machine.",
+      command: "export OPENAI_API_KEY=your-key",
+    },
+    {
+      title: "Scan a file",
+      body: "This prints the issues and a hardened version in the terminal. The file stays as it is.",
+      command: "python sentinel/sentinel_scan.py --scan fixtures/northwind/docker-compose.yml",
+    },
+    {
+      title: "Overwrite only when you mean to",
+      body: "Add --apply to replace that file with the suggestion. The original is saved next to it as a .bak.",
+      command: "python sentinel/sentinel_scan.py --scan fixtures/northwind/docker-compose.yml --apply",
+    },
+    {
+      title: "Read a log",
+      body: "Point it at a log file. The terminal prints one report: what happened, the path, a MITRE mapping, and what to change.",
+      command: "python sentinel/log_analyzer.py path/to/events.log",
+    },
+  ];
+  const cards = steps.map((step, index) => `
+    <li class="sentinel-step">
+      <span class="idx">${String(index + 1).padStart(2, "0")}</span>
+      <div>
+        <h2>${esc(step.title)}</h2>
+        <p>${esc(step.body)}</p>
+        <div class="command">
+          <pre><code>${esc(step.command)}</code></pre>
+          <button type="button" class="ghost" data-copy="${esc(step.command)}">Copy</button>
+        </div>
+      </div>
+    </li>
+  `).join("");
+  return `
+    <p class="kicker">06 · Sentinel</p>
+    <h1>Read one file, or one log, with a model.</h1>
+    <p class="lede">This stage is separate from the loop. Stages 01–05 stay on this machine and prove a fix by scanning again. Sentinel sends the file or the log you choose to the model, then prints the result in the terminal.</p>
+    <ol class="sentinel-steps">${cards}</ol>
+  `;
+}
+
 function sandboxSentence(sandbox) {
   const ports = sandbox.host_ports ? "published host ports" : "published no host ports";
   const privileged = sandbox.privileged ? "granted privileged mode" : "did not grant privileged mode";
@@ -542,6 +592,9 @@ function bindActions() {
   for (const button of view.querySelectorAll("[data-demo]")) {
     button.addEventListener("click", () => chooseDemo(button.dataset.demo));
   }
+  for (const button of view.querySelectorAll("[data-copy]")) {
+    button.addEventListener("click", () => copyCommand(button));
+  }
   const tabs = [...view.querySelectorAll("[data-file]")];
   tabs.forEach((button, index) => {
     button.addEventListener("click", () => {
@@ -603,6 +656,29 @@ function esc(value) {
     '"': "&quot;",
     "'": "&#39;",
   })[char]);
+}
+
+async function copyCommand(button) {
+  const command = button.dataset.copy || "";
+  const previous = button.textContent;
+  try {
+    await navigator.clipboard.writeText(command);
+    button.textContent = "Copied";
+  } catch {
+    const field = document.createElement("textarea");
+    field.value = command;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.left = "-9999px";
+    document.body.appendChild(field);
+    field.select();
+    const copied = document.execCommand("copy");
+    field.remove();
+    button.textContent = copied ? "Copied" : "Select the command";
+  }
+  setTimeout(() => {
+    button.textContent = previous;
+  }, 1200);
 }
 
 function showError(err) {
