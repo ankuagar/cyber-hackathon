@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aegis · Demo deploys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,560;1,9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <path d="M16 5.2v5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <div>
+        <div class="word">Aegis</div>
+        <div class="sub">Defense loop</div>
+      </div>
+    </div>
+    <div class="target" id="target"></div>
+    <div class="top-actions">
+      <button id="run" class="primary" type="button">Run the loop</button>
+      <button id="reset" class="ghost" type="button">Reset</button>
+    </div>
+    <div class="risk" id="risk"></div>
+  </header>
+  <div class="demo-bar">
+    <span class="demo-badge">Demo deploy</span>
+    <p id="demo-note">Northwind Checkout and Harbor Archive are sample deployments, not real customers.</p>
+    <button id="scan" class="primary" type="button">Scan deployment</button>
+    <div class="demo-switch" id="demo-switch" role="group" aria-label="Choose a demo deploy"></div>
+  </div>
+  <nav class="stages" id="stages" aria-label="Defense loop"></nav>
+  <div class="layout">
+    <main id="view"></main>
+    <aside id="tape" aria-label="Event tape"></aside>
+  </div>
+  <p id="error" class="error" hidden></p>
+  <script src="/app.js"></script>
+</body>
+</html>
